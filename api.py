@@ -8,6 +8,7 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 
 from models import User, Game, Score
+from models import UNKNOWN, DRAW
 from models import StringMessage, ScoreForms, NewGameForm, GameForm
 from utils import get_by_urlsafe
 
@@ -58,7 +59,14 @@ class RockPaperScissorsApi(remote.Service):
         # This operation is not needed to complete the creation of a new game
         # so it is performed out of sequence.
         taskqueue.add(url='/tasks/cache_user_wins')
-        return game.to_form('Good luck playing Rock, Paper, Scissors!')
+
+        if game.game_result == DRAW : msg = "it's a"
+        elif game.game_result == UNKNOWN : msg = 'game state is'
+        else: msg = 'you'
+        return game.to_form('You selected {}, your opponent selected {} -- {} {}'.format(game.player_weapon,
+                                                                                         game.opponent_weapon,
+                                                                                         msg,
+                                                                                         game.game_result))
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,
@@ -114,6 +122,8 @@ class RockPaperScissorsApi(remote.Service):
         #average = float(total_attempts_remaining)/count
         memcache.set(MEMCACHE_WEAPON_WIN_LOSS,
                     'The number of win is *TODO*')
+
+
 
 
 api = endpoints.api_server([RockPaperScissorsApi])

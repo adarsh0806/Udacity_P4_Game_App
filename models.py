@@ -7,6 +7,13 @@ from protorpc import messages
 from google.appengine.ext import ndb
 
 weapons = ['rock','paper','scissors']
+ROCK = 'rock'
+PAPER = 'paper'
+SCISSORS = 'scissors'
+DRAW = 'draw'
+WIN = 'win'
+LOSE = 'lose'
+UNKNOWN = 'unknown'
 
 class User(ndb.Model):
     """User profile"""
@@ -18,19 +25,43 @@ class Game(ndb.Model):
     """Game object"""
     player_weapon = ndb.StringProperty(required=True)
     opponent_weapon = ndb.StringProperty(required=True)
+    game_result = ndb.StringProperty(required=True)
     user = ndb.KeyProperty(required=True, kind='User')
 
     @classmethod
     def new_game(cls, user, player_weapon):
         """Creates and returns a new game"""
+
+        # The opponent's weapon is randomly selected.
         x = random.choice(range(0,2))
+        x = 2
         opponent_weapon = weapons[x]
-        print user
-        print player_weapon
-        print opponent_weapon
+
+        # Determine who won a game of rock, paper, scissors.
+        game_result = UNKNOWN
+        if player_weapon != opponent_weapon:
+            if player_weapon == ROCK:
+                if opponent_weapon == SCISSORS : game_result = WIN
+                elif opponent_weapon == PAPER : game_result = LOSE
+                else : game_result = UNKNOWN
+
+            if player_weapon == PAPER:
+                if opponent_weapon == ROCK : game_result = WIN
+                elif opponent_weapon == SCISSORS : game_result = LOSE
+                else : game_result = UNKNOWN
+
+            if player_weapon == SCISSORS:
+                if opponent_weapon == PAPER : game_result = WIN
+                elif opponent_weapon == ROCK : game_result = LOSE
+                else : game_result = UNKNOWN
+        else:
+            game_result = DRAW
+
+        # The game has been played, now create game and save.
         game = Game(user=user,
                     player_weapon=player_weapon,
-                    opponent_weapon=opponent_weapon
+                    opponent_weapon=opponent_weapon,
+                    game_result=game_result
                    )
         game.put()
         return game
@@ -42,9 +73,9 @@ class Game(ndb.Model):
         form.user_name = self.user.get().name
         form.player_weapon = self.player_weapon
         form.opponent_weapon = self.opponent_weapon
+        form.game_result = self.game_result
         form.message = message
         return form
-
 
 class Score(ndb.Model):
     """Score object"""
@@ -70,6 +101,7 @@ class GameForm(messages.Message):
     opponent_weapon = messages.StringField(3, required=True)
     message = messages.StringField(4, required=True)
     user_name = messages.StringField(5, required=True)
+    game_result = messages.StringField(6, required=True)
 
 
 class ScoreForm(messages.Message):
