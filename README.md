@@ -11,8 +11,7 @@ These shapes are "rock" (a simple fist), "paper" (a flat hand), and "scissors"
 three possible outcomes other than a tie: a player who decides to play rock will beat
 another player who has chosen scissors ("rock crushes scissors") but will lose to one
 who has played paper ("paper covers rock"); a play of paper will lose to a play of scissors
-("scissors cut paper"). If both players throw the same shape, the game is tied and is
-usually immediately replayed to break the tie.
+("scissors cut paper"). If both players throw the same shape, the game is considered a draw.
 
 
 ##Files Included:
