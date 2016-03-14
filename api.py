@@ -6,15 +6,18 @@ import endpoints
 from protorpc import remote, messages
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
+from google.appengine.ext import ndb
 
 from models import User, Game, Score
 from models import UNKNOWN, DRAW
-from models import StringMessage, ScoreForms, NewGameForm, GameForm
+from models import StringMessage, ScoreForms, NewGameForm, GameForm, GameForms
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
 GET_GAME_REQUEST = endpoints.ResourceContainer(
     urlsafe_game_key=messages.StringField(1),)
+GET_ALL_GAMES_REQUEST = endpoints.ResourceContainer()
+GET_GAMES_BY_USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),)
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
 
@@ -68,28 +71,61 @@ class RockPaperScissorsApi(remote.Service):
                                                                                          msg,
                                                                                          game.game_result))
 
+
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,
                       path='game/{urlsafe_game_key}',
-                      name='get_games',
+                      name='get_game',
                       http_method='GET')
-    def get_games(self, request):
-        """Return the most-recent game results."""
+    def get_game(self, request):
+        """Return one game by urlsafe_game_key."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
-        if game:
-            # Should not get here as winner is decided within a new game (i.e. hand throw-down).
-            return game.to_form('Time to play!')
-        else:
-            raise endpoints.NotFoundException('Game not found!')
-        return GameForm(items=[game.to_form() for game in Game.query()])
 
-    @endpoints.method(response_message=ScoreForms,
-                      path='scores',
-                      name='get_scores',
+        if not game:
+            raise endpoints.NotFoundException('Game not found!')
+
+        # Add a descriptive message to response.
+        if game.game_result == 'win' : msg = "You won!"
+        elif game.game_result == 'lose' : msg = "Sorry, the virtual player won this round."
+        elif game.game_result == 'draw' : msg = "The game was a draw."
+        else:
+            msg = "Unknown result.  Perhaps you chose a weapon we don't know about."
+
+        u_key = game.user
+        user = u_key.get()
+        return game.to_form('{} chose {} and virtual player chose {}. {}'.format(user.name,
+                                                                                 game.player_weapon,
+                                                                                 game.opponent_weapon,
+                                                                                 msg))
+
+
+    @endpoints.method(request_message=GET_ALL_GAMES_REQUEST,
+                      response_message=GameForms,
+                      path='game',
+                      name='get_all_games',
                       http_method='GET')
-    def get_games(self, request):
-        """Return all games"""
-        return GameForms(items=[game.to_form() for game in Game.query()])
+    def get_game(self, request):
+        """Return all game results."""
+        return GameForms(items=[game.to_form('N/A') for game in Game.query()])
+
+
+    @endpoints.method(request_message=GET_GAMES_BY_USER_REQUEST,
+                      response_message=GameForms,
+                      path='games/user/{user_name}',
+                      name='get_games_by_user',
+                      http_method='GET')
+    def get_game(self, request):
+        """Return a user's game history."""
+        user = User.query(User.name == request.user_name).get()
+
+        if not user:
+            raise endpoints.NotFoundException(
+                    'A User with that name does not exist!')
+
+        games = Game.query(Game.user == user.key)
+
+        return GameForms(items=[game.to_form('N/A') for game in games])
+
 
     @endpoints.method(request_message=USER_REQUEST,
                       response_message=ScoreForms,

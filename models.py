@@ -32,7 +32,7 @@ class Game(ndb.Model):
     def new_game(cls, user, player_weapon):
         """Creates and returns a new game"""
 
-        # The opponent's weapon is randomly selected.
+        # The AI opponent's weapon is randomly selected.
         x = random.randint(0,2)
         opponent_weapon = weapons[x]
 
@@ -103,6 +103,11 @@ class GameForm(messages.Message):
     message = messages.StringField(4, required=True)
     user_name = messages.StringField(5, required=True)
     game_result = messages.StringField(6, required=True)
+
+
+class GameForms(messages.Message):
+    """Return multiple GameForms"""
+    items = messages.MessageField(GameForm, 1, repeated=True)
 
 
 class ScoreForm(messages.Message):
