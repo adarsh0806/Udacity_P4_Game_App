@@ -33,12 +33,13 @@ class Game(ndb.Model):
         """Creates and returns a new game"""
 
         # The opponent's weapon is randomly selected.
-        x = random.choice(range(0,2))
-        x = 2
+        x = random.randint(0,2)
         opponent_weapon = weapons[x]
 
         # Determine who won a game of rock, paper, scissors.
         game_result = UNKNOWN
+        player_weapon = player_weapon.lower()
+        print player_weapon
         if player_weapon != opponent_weapon:
             if player_weapon == ROCK:
                 if opponent_weapon == SCISSORS : game_result = WIN
