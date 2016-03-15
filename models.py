@@ -39,7 +39,6 @@ class Game(ndb.Model):
         # Determine who won a game of rock, paper, scissors.
         game_result = UNKNOWN
         player_weapon = player_weapon.lower()
-        print player_weapon
         if player_weapon != opponent_weapon:
             if player_weapon == ROCK:
                 if opponent_weapon == SCISSORS : game_result = WIN
@@ -78,16 +77,6 @@ class Game(ndb.Model):
         form.message = message
         return form
 
-class Score(ndb.Model):
-    """Score object"""
-    user = ndb.KeyProperty(required=True, kind='User')
-    date = ndb.DateProperty(required=True)
-    won = ndb.BooleanProperty(required=True)
-
-    def to_form(self):
-        return ScoreForm(user_name=self.user.get().name, won=self.won,
-                         date=str(self.date))
-
 
 class NewGameForm(messages.Message):
     """Used to create a new game"""
@@ -108,18 +97,6 @@ class GameForm(messages.Message):
 class GameForms(messages.Message):
     """Return multiple GameForms"""
     items = messages.MessageField(GameForm, 1, repeated=True)
-
-
-class ScoreForm(messages.Message):
-    """ScoreForm for outbound Score information"""
-    user_name = messages.StringField(1, required=True)
-    date = messages.StringField(2, required=True)
-    won = messages.BooleanField(3, required=True)
-
-
-class ScoreForms(messages.Message):
-    """Return multiple ScoreForms"""
-    items = messages.MessageField(ScoreForm, 1, repeated=True)
 
 
 class StringMessage(messages.Message):

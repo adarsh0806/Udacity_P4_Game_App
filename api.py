@@ -8,9 +8,9 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
-from models import User, Game, Score
+from models import User, Game
 from models import UNKNOWN, DRAW
-from models import StringMessage, ScoreForms, NewGameForm, GameForm, GameForms
+from models import StringMessage, NewGameForm, GameForm, GameForms
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
