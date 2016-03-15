@@ -21,7 +21,7 @@ GET_GAMES_BY_USER_REQUEST = endpoints.ResourceContainer(user_name=messages.Strin
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
 
-MEMCACHE_WEAPON_WIN_LOSS = 'WEAPON_WIN_LOSS'
+MEMCACHE_USER_WINS = 'USER_WINS'
 
 @endpoints.api(name='rock_paper_scissors', version='v1')
 class RockPaperScissorsApi(remote.Service):
@@ -40,6 +40,7 @@ class RockPaperScissorsApi(remote.Service):
         user.put()
         return StringMessage(message='User {} created!'.format(
                 request.user_name))
+
 
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
@@ -101,10 +102,10 @@ class RockPaperScissorsApi(remote.Service):
 
     @endpoints.method(request_message=GET_ALL_GAMES_REQUEST,
                       response_message=GameForms,
-                      path='game',
+                      path='game/get_all',
                       name='get_all_games',
                       http_method='GET')
-    def get_game(self, request):
+    def get_all_games(self, request):
         """Return all game results."""
         return GameForms(items=[game.to_form('N/A') for game in Game.query()])
 
@@ -117,37 +118,22 @@ class RockPaperScissorsApi(remote.Service):
     def get_game(self, request):
         """Return a user's game history."""
         user = User.query(User.name == request.user_name).get()
-
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
 
         games = Game.query(Game.user == user.key)
-
         return GameForms(items=[game.to_form('N/A') for game in games])
 
 
-    @endpoints.method(request_message=USER_REQUEST,
-                      response_message=ScoreForms,
-                      path='scores/user/{user_name}',
-                      name='get_user_scores',
-                      http_method='GET')
-    def get_user_scores(self, request):
-        """Returns all of an individual User's scores"""
-        user = User.query(User.name == request.user_name).get()
-        if not user:
-            raise endpoints.NotFoundException(
-                    'A User with that name does not exist!')
-        scores = Score.query(Score.user == user.key)
-        return ScoreForms(items=[score.to_form() for score in scores])
-
     @endpoints.method(response_message=StringMessage,
-                      path='games/average_attempts',
-                      name='get_average_attempts_remaining',
+                      path='games/user_wins',
+                      name='get_user_wins',
                       http_method='GET')
     def get_average_attempts(self, request):
-        """Get the cached average moves remaining"""
-        return StringMessage(message=memcache.get(MEMCACHE_WEAPON_WIN_LOSS) or '')
+        """Get the cached wins for user"""
+        return StringMessage(message=memcache.get(MEMCACHE_USER_WINS) or 'Fudge')
+
 
     @staticmethod
     def _cache_user_wins():
@@ -156,10 +142,7 @@ class RockPaperScissorsApi(remote.Service):
         #total_attempts_remaining = sum([game.attempts_remaining
         #                            for game in games])
         #average = float(total_attempts_remaining)/count
-        memcache.set(MEMCACHE_WEAPON_WIN_LOSS,
-                    'The number of win is *TODO*')
-
-
+        memcache.set(MEMCACHE_USER_WINS, 'The number of wins is 69')
 
 
 api = endpoints.api_server([RockPaperScissorsApi])

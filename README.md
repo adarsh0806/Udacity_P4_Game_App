@@ -1,4 +1,4 @@
-#Udacity Project 4 - Rock, Paper, Scissors Game Backend
+#Udacity Project 4 - Rock, Paper, Scissors Game
 
 ## Set-Up Instructions:
 
