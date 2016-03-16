@@ -6,7 +6,7 @@
  - Run the app with the devserver using dev_appserver.py DIR, and ensure it's
  running by visiting the API Explorer - by default localhost:8080/_ah/api/explorer.
  - (Optional) Generate your client library(ies) with the endpoints tool.
- Deploy your application to the Google cloud APIs Explorer.
+ Deploy your application to the Google cloud Platform and access via APIs Explorer.
 
 ##Game Description:
 Rock-paper-scissors is a zero-sum hand game usually played between two people,
