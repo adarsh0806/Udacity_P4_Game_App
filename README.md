@@ -1,7 +1,12 @@
 #Udacity Project 4 - Rock, Paper, Scissors Game
 
 ## Set-Up Instructions:
-
+ - Update the value of application in app.yaml to the application ID you have registered
+ in the App Engine admin console and would like to use to host your instance of this sample.
+ - Run the app with the devserver using dev_appserver.py DIR, and ensure it's
+ running by visiting the API Explorer - by default localhost:8080/_ah/api/explorer.
+ - (Optional) Generate your client library(ies) with the endpoints tool.
+ Deploy your application to the Google cloud APIs Explorer.
 
 ##Game Description:
 Rock-paper-scissors is a zero-sum hand game usually played between two people,
@@ -14,15 +19,15 @@ who has played paper ("paper covers rock"); a play of paper will lose to a play 
 ("scissors cut paper"). If both players throw the same shape, the game is considered a draw.
 
 With the Rock, Paper, Scissors API, you play a "virtual" player.  To play a match, follow
-the following steps:
- - create a new user via the "create_user" endpoint (name and an optional email address).
- - using the "new_game" endpoint, enter a user name and choose your weapon (rock, paper
-   or scissors).  the response displays the "game_result", i.e. a win, loss or draw
+these steps:
+ - create a new user via the **create_user** endpoint (name and an optional email address).
+ - using the **new_game** endpoint, enter a user name and choose your weapon (rock, paper
+   or scissors).  The response displays the **game_result**, i.e. a win, loss or draw
    (or unknown if you enter an anything other than rock, paper or scissors).
- - repeat "new_game" with your user name to play more matches against the virtual player.
+ - repeat **new_game** with your user name to play more matches against the virtual player.
 
 To retrieve all the user statistics from memcache, execute the **get_user_stats** endpoint.
-This returns a message string containing user name and wins, losses, tie game counts,
+This returns a message string containing user name and wins/losses/tie-game counts,
 and a count of unknown results (where an unknown weapon was passed into new_game).
 
 To retrieve all matches played thus far, execute the **get_all_games** endpoint (no parameters
@@ -79,7 +84,7 @@ urlsafe game key.  The response shows the match details for the selected by key.
     - Description: For each match, the user name, game result, and weapons chosen are
     returned in the response.
 
- - **get_games_by_user**
+- **get_games_by_user**
     - Path: 'games/user/{user_name}'
     - Method: GET
     - Parameters: user name
