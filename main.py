@@ -27,13 +27,14 @@ class SendReminderEmail(webapp2.RequestHandler):
                            subject,
                            body)
 
-class UpdateWins(webapp2.RequestHandler):
+
+class UpdateUserStats(webapp2.RequestHandler):
     def post(self):
         """Update game listing announcement in memcache."""
-        RockPaperScissorsApi._cache_user_wins()
+        RockPaperScissorsApi._cache_user_stats()
         self.response.set_status(204)
 
 app = webapp2.WSGIApplication([
     ('/crons/send_reminder', SendReminderEmail),
-    ('/tasks/user_wins', UpdateWins),
+    ('/tasks/cache_user_stats', UpdateUserStats),
 ], debug=True)

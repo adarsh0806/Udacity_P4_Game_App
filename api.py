@@ -21,7 +21,7 @@ GET_GAMES_BY_USER_REQUEST = endpoints.ResourceContainer(user_name=messages.Strin
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
 
-MEMCACHE_USER_WINS = 'USER_WINS'
+MEMCACHE_USER_STATS = 'USER_STATS'
 
 @endpoints.api(name='rock_paper_scissors', version='v1')
 class RockPaperScissorsApi(remote.Service):
@@ -62,7 +62,7 @@ class RockPaperScissorsApi(remote.Service):
         # Use a task queue to update the user wins.
         # This operation is not needed to complete the creation of a new game
         # so it is performed out of sequence.
-        taskqueue.add(url='/tasks/cache_user_wins')
+        taskqueue.add(url='/tasks/cache_user_stats')
 
         if game.game_result == DRAW : msg = "it's a"
         elif game.game_result == UNKNOWN : msg = 'game state is'
@@ -127,22 +127,50 @@ class RockPaperScissorsApi(remote.Service):
 
 
     @endpoints.method(response_message=StringMessage,
-                      path='games/user_wins',
-                      name='get_user_wins',
+                      path='games/cache_user_stats',
+                      name='get_user_stats',
                       http_method='GET')
-    def get_average_attempts(self, request):
-        """Get the cached wins for user"""
-        return StringMessage(message=memcache.get(MEMCACHE_USER_WINS) or 'Fudge')
+    def get_user_stats(self, request):
+        """Get the cached stats for user"""
+        return StringMessage(message=memcache.get(MEMCACHE_USER_STATS) or 'Nothing found in memcache')
 
 
     @staticmethod
-    def _cache_user_wins():
+    def _cache_user_stats():
         """Populates memcache with the number of wins per user"""
-        #count = len(games)
-        #total_attempts_remaining = sum([game.attempts_remaining
-        #                            for game in games])
-        #average = float(total_attempts_remaining)/count
-        memcache.set(MEMCACHE_USER_WINS, 'The number of wins is 69')
+        users = User.query()
+        msg = ''
+        for user in users:
+            games = Game.query(Game.user == user.key)
+            wins = losses = ties = unknown = 0
+            for game in games:
+                if game.game_result == 'win':
+                    wins += 1
+                elif game.game_result == 'lose':
+                    losses += 1
+                elif game.game_result == 'draw':
+                    ties += 1
+                else:
+                    unknown += 1
+
+            str1 = "win" if wins == 1 else "wins"
+            str2 = "loss" if losses == 1 else "losses"
+            str3 = "draw" if ties == 1 else "tie games"
+            str4 = "result" if unknown == 1 else "results"
+            one_player = "{} has {} {}, {} {}, {} {}, " \
+                   "and {} unknown {}.  ".format(user.name,
+                                                      wins,
+                                                      str1,
+                                                      losses,
+                                                      str2,
+                                                      ties,
+                                                      str3,
+                                                      unknown,
+                                                      str4
+                                                 )
+            msg += one_player
+
+        memcache.set(MEMCACHE_USER_STATS, msg)
 
 
 api = endpoints.api_server([RockPaperScissorsApi])
