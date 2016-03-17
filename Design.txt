@@ -1,0 +1,19 @@
+Design Desisions for Project #4 -- Rock, Paper, Scissors Game
+
+1. What additional properties did you add to your models and why?
+    * player_weapon - this property contains what the user selected for the rock-paper-scissor throw-down.
+    * opponent_weapon - and this property contains the opponent's selection of weapon.  This is the
+      "virtual" player which is a simple random.randint call which generates a number represent a rock,
+      paper, or pair of scissors.
+    * game_result - the game_result property saves either "win", "lose", "draw", or "unknown", and is
+      relative to the "player"...i.e. not the virtual player.  So it states whether the user won, or lost, etc.
+
+
+2. What were some of the trade-offs or struggles you faced when implementing the new game logic?
+    * Well, obviously I kept it very simple and straight-forward.  My approach was that the exercise was to
+      ensure I had a good understanding of Google Cloud's App Engine, Datastore, Memcache and running background
+      and scheduled tasks (cron jobs).  I had considered 2-player and even variations of rock-paper-scissors,
+      going full nerd with rock-paper-scissors-lizard-Spock, however my thought was to keep it simple and
+      focus on understanding the moving parts within Google App Engine.  So a trade-off was implementing a
+      simpler game and focus on fully understanding the backend API Google provides (pretty powerful stuff indeed).
+ 
